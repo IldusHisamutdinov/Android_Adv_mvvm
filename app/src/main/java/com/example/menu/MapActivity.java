@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.menu.util.SharedPrefUtil;
 import com.example.menu.view.ui.BaseMainActivity;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -79,16 +80,25 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 .center(location)
                 .radius(55000)
                 .strokeColor(Color.BLUE));
-
+//   адрес
+//        Geocoder geocoder = new Geocoder(this);
+//        try {
+//            List<Address> addresses = geocoder.getFromLocation (location.latitude,
+//                    location.longitude, 1);
+//            System.out.println(addresses.get(0).getLocality());
+//            SharedPrefUtil.save(this, Constants.KEY_LOCAT, addresses.get(0).getAddressLine(0));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         String latit = Double.toString(location.latitude);
         String lontit = Double.toString(location.longitude);
-        Intent intent = new Intent(this, BaseMainActivity.class);
-        intent.putExtra(LAT, latit);
-        intent.putExtra(LON, lontit);
-        startActivity(intent);
+        SharedPrefUtil.save(this, Constants.KEY_LAT, latit);
+        SharedPrefUtil.save(this, Constants.KEY_LONG, lontit);
+
 
         return marker;
     }
+
 
     //    // Запрос координат
     @SuppressLint("MissingPermission")
@@ -109,7 +119,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 public void onLocationChanged(Location location) {
                     double lat = location.getLatitude();// Широта
                     double lng = location.getLongitude();// Долгота
-
                     LatLng currentPosition = new LatLng(lat, lng);
                     if(mMap != null){
                     currentMarker = mMap.addMarker(new MarkerOptions()

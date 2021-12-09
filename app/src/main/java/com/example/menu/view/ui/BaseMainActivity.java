@@ -3,7 +3,6 @@ package com.example.menu.view.ui;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -32,18 +31,17 @@ import androidx.lifecycle.ViewModelProviders;
 import com.example.menu.AddDataAcctivity;
 import com.example.menu.App;
 import com.example.menu.BuildConfig;
+import com.example.menu.Constants;
 import com.example.menu.MapActivity;
 import com.example.menu.R;
 import com.example.menu.database.DatabaseHelper;
 import com.example.menu.model.DataModel;
 import com.example.menu.services.model.ResponseWeather;
 import com.example.menu.services.model.TimeDate;
-import com.example.menu.services.repository.OpenWeather;
-import com.example.menu.viewModel.WeatherCoordViewModel;
+import com.example.menu.util.SharedPrefUtil;
 import com.example.menu.viewModel.WeatherViewModel;
 import com.example.menu.weather.CitySelection;
 import com.example.menu.weather.DialogCity;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
@@ -54,15 +52,12 @@ import static com.example.menu.weather.CitySelection.TOWN;
 public class BaseMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
-    private OpenWeather openWeather;
     private TextView textTemp; // Температура (в градусах)
     private TextView description;
     private TextInputEditText editCity;
     private TextView inputCity;
     private TextView date;
     private TextView speed; // скорость ветра
-    private TextView wind; // ветер
-    private TextView ms; // м/с
     private TextView clouds; // облачность
     private TextView humidity; // влажность
     private TextView pressure; // давление
@@ -73,12 +68,9 @@ public class BaseMainActivity extends AppCompatActivity
     private String url;
     final String metric = "metric";
     final String lang = "ru";
-    private LatLng location;
     FrameLayout frameLayout;
     ProgressBar progressBar;
-    private String NAME_CITY = "nameCity"; // для SharedPreferences
-    private String LATIT = "latit"; // для SharedPreferences
-    private String LONTIT = "lontit"; // для SharedPreferences
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -88,12 +80,9 @@ public class BaseMainActivity extends AppCompatActivity
         drawer = findViewById(R.id.drawer_layout);
         Toolbar toolbar = initToolbar();
         initDrawer(toolbar);
-  //      initRetorfit();
         initGui();
         initNameCity();
-        initCoord();
         picasso(pngUrl);
-
     }
 
     @Override
@@ -121,46 +110,25 @@ public class BaseMainActivity extends AppCompatActivity
         Intent intent = getIntent();
         String town = intent.getStringExtra(TOWN);
         if (town == null) {
-            loadSharedPrefs();
-            town = inputCity.getText().toString();
-            requestRetrofitnameCity(town, metric, BuildConfig.WEATHER_API_KEY, lang);
+            String  lat = String.valueOf(SharedPrefUtil.getData(this, Constants.KEY_LAT, ""));
+            String lon = String.valueOf(SharedPrefUtil.getData(this, Constants.KEY_LONG, ""));
+            requestRetrofit(lat, lon, metric, BuildConfig.WEATHER_API_KEY, lang);
         } else {
-            requestRetrofitnameCity(town, metric, BuildConfig.WEATHER_API_KEY, lang);
+            requestRetrofitnameCity(town, "", "", metric, BuildConfig.WEATHER_API_KEY, lang);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
 
                     try {
-                        Thread.sleep(3000);
-                        saveSharedPrefs();
+                        Thread.sleep(2000);
                         result();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             }).start();
+
         }
-    }
-
-    //прием координат lon и lat от MapActivity
-    private void initCoord() {
-        Intent intent = getIntent();
-        String latit = intent.getStringExtra(MapActivity.LAT);
-        String lontit = intent.getStringExtra(MapActivity.LON);
-        requestRetrofit(latit, lontit, metric, BuildConfig.WEATHER_API_KEY, lang);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    Thread.sleep(3000);
-                    saveSharedPrefs();
-                    result();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
     private void picasso(String png) {
@@ -173,14 +141,16 @@ public class BaseMainActivity extends AppCompatActivity
     }
 
     // погода по координатам lat и lon
-    private void requestRetrofit(String lat, String lon, String metric, String keyApi, String lang) {
-        WeatherCoordViewModel weatherCoordViewModel = ViewModelProviders.of(this).get(WeatherCoordViewModel.class);
-        weatherCoordViewModel.getWeatherCoord(lat, lon, metric, keyApi, lang).observe(this, new Observer<ResponseWeather>() {
+    public void requestRetrofit(String lat, String lon, String metric, String keyApi, String lang) {
+        WeatherViewModel weatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
+        weatherViewModel.getWeatherInfo(null, lat, lon, metric, keyApi, lang).observe(this, new Observer<ResponseWeather>() {
 
             @Override
             public void onChanged(ResponseWeather responseWeather) {
-                Boolean result = weatherCoordViewModel.getSuccess().getValue();
-                if (result && responseWeather != null) {
+                //     Boolean result = weatherViewModel.getSuccess().getValue();
+                if (responseWeather != null) {
+                    frameLayout.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.INVISIBLE);
                     long temp = responseWeather.getMain().getTemp();
                     textTemp.setText(Long.toString(temp) + " ℃");
                     String dis = responseWeather.getWeather().get(0).getDescription();
@@ -210,19 +180,23 @@ public class BaseMainActivity extends AppCompatActivity
                     sunriseName.setText(sunr);
                     String suns = TimeDate.timeStamp(responseWeather.getSys().getSunset());
                     sunsetName.setText(suns);
+                } else {
+                    DialogCity dialog = new DialogCity();
+                    dialog.show(getSupportFragmentManager(), "custom");
+                    frameLayout.setVisibility(View.INVISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
                 }
             }
         });
     }
 
     // погода по названию города
-    private void requestRetrofitnameCity(String cityCountry, String metric, String keyApi, String lang) {
+    private void requestRetrofitnameCity(String cityCountry, String lat, String lon, String metric, String keyApi, String lang) {
         WeatherViewModel weatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
-        weatherViewModel.getWeatherInfo(cityCountry, metric, keyApi, lang).observe(this, new Observer<ResponseWeather>() {
+        weatherViewModel.getWeatherInfo(cityCountry, "", "", metric, keyApi, lang).observe(this, new Observer<ResponseWeather>() {
             @Override
             public void onChanged(ResponseWeather responseWeather) {
-                Boolean result = weatherViewModel.getSuccess().getValue();
-                if (result && responseWeather != null) {
+                if (responseWeather != null) {
                     frameLayout.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.INVISIBLE);
                     long temp = responseWeather.getMain().getTemp();
@@ -316,7 +290,6 @@ public class BaseMainActivity extends AppCompatActivity
         }
     }
 
-
     private Toolbar initToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -330,10 +303,8 @@ public class BaseMainActivity extends AppCompatActivity
         if (id == R.id.action_favorite) {
             Intent intent = new Intent(this, CitySelection.class);
             startActivity(intent);
-
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -347,7 +318,6 @@ public class BaseMainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -356,7 +326,6 @@ public class BaseMainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -381,31 +350,6 @@ public class BaseMainActivity extends AppCompatActivity
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    public void saveSharedPrefs() {
-        String preferenceFileName = "name";
-        SharedPreferences sharedPref = getSharedPreferences(preferenceFileName, MODE_PRIVATE);
-        savePreferences(sharedPref);    // сохранить настройки
-    }
-
-    public void loadSharedPrefs() {
-        String preferenceFileName = "name";
-        SharedPreferences sharedPref = getSharedPreferences(preferenceFileName, MODE_PRIVATE);
-        loadPreferences(sharedPref);
-    }
-
-    private void savePreferences(SharedPreferences sharedPref) {
-        String keys = inputCity.getText().toString();
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(NAME_CITY, keys);
-        editor.apply();//сохраняет в backgraund потоке
-    }
-
-    private void loadPreferences(SharedPreferences sharedPref) {
-        String keys = inputCity.getText().toString();
-        String valueFirst = sharedPref.getString(NAME_CITY, keys);
-        inputCity.setText(valueFirst);
     }
 
     public void result() {
