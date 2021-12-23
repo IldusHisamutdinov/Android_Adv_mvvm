@@ -16,12 +16,15 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.menu.R;
+import com.example.menu.util.SharedPrefUtil;
 import com.example.menu.view.ui.BaseMainActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.regex.Pattern;
+
+import static com.example.menu.Constants.NAME_CITY;
 
 public class CitySelection extends AppCompatActivity {
 
@@ -30,7 +33,6 @@ public class CitySelection extends AppCompatActivity {
     private TextInputLayout cityLayout;
     private EditText seach;
     private ArrayAdapter<String> adapter;
-    public final static String TOWN = "town";
 
     @SuppressLint({"CutPasteId", "ResourceType"})
     @Override
@@ -62,7 +64,9 @@ public class CitySelection extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), BaseMainActivity.class);
-                intent.putExtra(TOWN, text.getText().toString());
+                String town = text.getText().toString();
+                intent.putExtra(NAME_CITY, text.getText().toString());
+                SharedPrefUtil.save(getApplicationContext(), NAME_CITY, town);
                 startActivity(intent);
                 finish();
             }

@@ -23,15 +23,30 @@
         android:textColor="@color/common_google_signin_btn_text_dark_default"
         android:textSize="20sp" />
 
-    <ImageView
-        android:id="@+id/back"
+    <TextView
+        android:id="@+id/ok"
         android:layout_width="34dp"
         android:layout_height="34dp"
+        android:layout_margin="15dp"
+        android:text="@string/ok"
         android:onClick="Back"
         android:layout_gravity="end"
         android:layout_marginTop="10dp"
         android:layout_marginRight="15dp"
-        android:src="@android:drawable/btn_dialog" />
+        android:src="@android:drawable/btn_dialog"
+        android:textColor="@color/common_google_signin_btn_text_dark_default"
+        android:textSize="20sp" />
+
+<!--    <ImageView-->
+<!--        android:id="@+id/back"-->
+<!--        android:layout_width="34dp"-->
+<!--        android:layout_height="34dp"-->
+<!--        android:onClick="Back"-->
+<!--        android:layout_gravity="end"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:layout_marginRight="15dp"-->
+<!--        android:visibility="gone"-->
+<!--        android:src="@android:drawable/btn_dialog" />-->
 
     <fragment
         android:id="@+id/map"

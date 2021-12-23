@@ -17,9 +17,10 @@
             android:icon="@drawable/ic_baseline_map_24"
             android:title="@string/menu_geolocation" />
         <item
-            android:id="@+id/nav_history"
-            android:icon="@drawable/ic_baseline_history_24"
-            android:title="@string/menu_history" />
+            android:id="@+id/nav_favorites"
+            android:icon="@android:drawable/star_big_on"
+            android:title="@string/menu_favorites"
+            android:src="@color/colorAccent"/>
         <item
             android:id="@+id/nav_setting"
             android:icon="@drawable/ic_baseline_settings_24"

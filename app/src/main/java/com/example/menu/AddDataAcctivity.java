@@ -12,8 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.menu.database.DatabaseHelper;
 import com.example.menu.model.DataModel;
+import com.example.menu.util.SharedPrefUtil;
 import com.example.menu.view.ui.BaseMainActivity;
 import com.example.menu.weather.CityRecyclerAdapter;
+
+import static com.example.menu.Constants.NAME_CITY;
 
 public class AddDataAcctivity extends AppCompatActivity implements CityRecyclerAdapter.OnDeleteListener, CityRecyclerAdapter.OnGetListener {
 
@@ -54,6 +57,7 @@ public class AddDataAcctivity extends AppCompatActivity implements CityRecyclerA
         super.onResume();
         CityRecyclerAdapter recyclerAdapter = new CityRecyclerAdapter(this, databaseHelper.getDataDao().getAllData());
         recyclerAdapter.setOnDeleteListener(this);
+        recyclerAdapter.onGetListener(this);
         recyclerView.setAdapter(recyclerAdapter);
     }
 
@@ -63,7 +67,12 @@ public class AddDataAcctivity extends AppCompatActivity implements CityRecyclerA
     }
 
     public void getByTitle(DataModel dataModel) {
-        databaseHelper.getDataDao().getByTitle(dataModel.city);
+        String town = dataModel.city;
+        SharedPrefUtil.save(this, NAME_CITY, town);
+        Intent intent = new Intent(getApplicationContext(), BaseMainActivity.class);
+        intent.putExtra(NAME_CITY, town);
+        startActivity(intent);
+        finish();
     }
 
     private Toolbar initToolbar() {

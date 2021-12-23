@@ -65,21 +65,23 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 dataModels.remove(getAdapterPosition());
                 notifyItemRemoved(getAdapterPosition());
             });
-//            city.setOnClickListener(view -> {
-//                onGetListener.getByTitle(dataModels.get(getAdapterPosition()));
-//                dataModels.get(getAdapterPosition());
-//            });
+            city.setOnClickListener(view -> {
+                onGetListener.getByTitle(dataModels.get(getAdapterPosition()));
+            });
         }
     }
 
     public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
         this.onDeleteListener = onDeleteListener;
     }
-
+    public void onGetListener(OnGetListener onGetListener) {
+        this.onGetListener = onGetListener;
+    }
     public interface OnDeleteListener {
         void onDelete(DataModel dataModel);
     }
     public interface OnGetListener {
         void getByTitle(DataModel dataModel);
     }
+
 }

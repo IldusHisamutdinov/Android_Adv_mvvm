@@ -3,15 +3,16 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Weather</string>
-    <string name="nav_header_subtitle">aelov62@gmail.com</string>
+    <string name="nav_header_subtitle">hisamutdinov@gmail.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">site</string>
-    <string name="action_favorite">City</string>
+    <string name="action_favorite">Add to favorites</string>
+    <string name="action_city">City</string>
     <string name="menu_send">Send</string>
     <string name="menu_home">Home</string>
     <string name="menu_location">Location</string>
     <string name="menu_geolocation">Geolocation</string>
-    <string name="menu_history">History</string>
+    <string name="menu_favorites">Favorites</string>
     <string name="menu_setting">Settings</string>
     <string name="menu_developer">About the developer</string>
     <!-- TODO: Remove or change this placeholder text -->
@@ -61,7 +62,6 @@
     <string name="mmhg_art">mmHg Art.</string>
     <string name="metsec">m/s</string>
     <string name="wind">wind</string>
-    <string name="history">History</string>
     <string name="del">DELETE FROM DataModel</string>
     <string name="geolocation">Geolocation</string>
     <string name="google_auth">GoogleAuth</string>
@@ -338,4 +338,5 @@
     </string-array>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="ok">ok</string>
 </resources>

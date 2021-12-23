@@ -1,7 +1,6 @@
 package com.example.menu.repo;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
@@ -9,7 +8,6 @@ import com.example.menu.BuildConfig;
 import com.example.menu.services.model.ResponseWeather;
 import com.example.menu.services.repository.OpenWeather;
 import com.example.menu.services.repository.RetrofitService;
-import com.google.gson.Gson;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,7 +41,7 @@ public class WeatherRepo {
                     public void onResponse(Call<ResponseWeather> call, Response<ResponseWeather> response) {
                         if (response != null) {
                             setSuccess(true);
-                            Log.d("DATA REQUIRED", new Gson().toJson(response));
+                      //      Log.d("DATA REQUIRED", new Gson().toJson(response));
                             weatherMutableLiveData.setValue(response.body());
                         }
                         setSuccess(false);

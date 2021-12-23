@@ -46,7 +46,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
 
-import static com.example.menu.weather.CitySelection.TOWN;
+import static com.example.menu.Constants.NAME_CITY;
 
 
 public class BaseMainActivity extends AppCompatActivity
@@ -70,6 +70,7 @@ public class BaseMainActivity extends AppCompatActivity
     final String lang = "ru";
     FrameLayout frameLayout;
     ProgressBar progressBar;
+    String town;
 
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -81,6 +82,7 @@ public class BaseMainActivity extends AppCompatActivity
         Toolbar toolbar = initToolbar();
         initDrawer(toolbar);
         initGui();
+        checkFirstOpen();
         initNameCity();
         picasso(pngUrl);
     }
@@ -106,28 +108,30 @@ public class BaseMainActivity extends AppCompatActivity
         progressBar = findViewById(R.id.progressBar);
     }
 
+    private void checkFirstOpen() {
+        Boolean isFirstRun = getSharedPreferences("PREF", MODE_PRIVATE)
+                .getBoolean("isFirstRun", true);
+        if (isFirstRun) {
+            String latit = "54.81196";
+            String lontit = "56.41080";
+            SharedPrefUtil.save(this, Constants.KEY_LAT, latit);
+            SharedPrefUtil.save(this, Constants.KEY_LONG, lontit);
+        }
+        getSharedPreferences("PREF", MODE_PRIVATE).edit().putBoolean("isFirstRun",
+                false).apply();
+    }
+
     private void initNameCity() {
         Intent intent = getIntent();
-        String town = intent.getStringExtra(TOWN);
+        String town = intent.getStringExtra(NAME_CITY);
+        //       town = (String) SharedPrefUtil.getData(this, NAME_CITY, "");
         if (town == null) {
-            String  lat = String.valueOf(SharedPrefUtil.getData(this, Constants.KEY_LAT, ""));
+            String lat = String.valueOf(SharedPrefUtil.getData(this, Constants.KEY_LAT, ""));
             String lon = String.valueOf(SharedPrefUtil.getData(this, Constants.KEY_LONG, ""));
             requestRetrofit(lat, lon, metric, BuildConfig.WEATHER_API_KEY, lang);
+
         } else {
             requestRetrofitnameCity(town, "", "", metric, BuildConfig.WEATHER_API_KEY, lang);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    try {
-                        Thread.sleep(2000);
-                        result();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-
         }
     }
 
@@ -145,6 +149,7 @@ public class BaseMainActivity extends AppCompatActivity
         WeatherViewModel weatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
         weatherViewModel.getWeatherInfo(null, lat, lon, metric, keyApi, lang).observe(this, new Observer<ResponseWeather>() {
 
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onChanged(ResponseWeather responseWeather) {
                 //     Boolean result = weatherViewModel.getSuccess().getValue();
@@ -194,6 +199,7 @@ public class BaseMainActivity extends AppCompatActivity
     private void requestRetrofitnameCity(String cityCountry, String lat, String lon, String metric, String keyApi, String lang) {
         WeatherViewModel weatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
         weatherViewModel.getWeatherInfo(cityCountry, "", "", metric, keyApi, lang).observe(this, new Observer<ResponseWeather>() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onChanged(ResponseWeather responseWeather) {
                 if (responseWeather != null) {
@@ -300,10 +306,12 @@ public class BaseMainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_favorite) {
+        if (id == R.id.action_city) {
             Intent intent = new Intent(this, CitySelection.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_favorite) {
+            resultDb();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -343,7 +351,7 @@ public class BaseMainActivity extends AppCompatActivity
         } else if (id == R.id.nav_geolocation) {
             Intent intent = new Intent(this, MapActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_history) {
+        } else if (id == R.id.nav_favorites) {
             Intent intent = new Intent(this, AddDataAcctivity.class);
             startActivity(intent);
         }
@@ -352,7 +360,7 @@ public class BaseMainActivity extends AppCompatActivity
         return true;
     }
 
-    public void result() {
+    public void resultDb() {
         DatabaseHelper databaseHelper = App.getInstance().getDatabaseInstance();
 
         DataModel model = new DataModel();
@@ -364,4 +372,8 @@ public class BaseMainActivity extends AppCompatActivity
         databaseHelper.getDataDao().insert(model);
     }
 
+    public void Back(View view) {
+        Intent intent = new Intent(this, BaseMainActivity.class);
+        startActivity(intent);
+    }
 }

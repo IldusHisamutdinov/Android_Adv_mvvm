@@ -3,11 +3,11 @@ package com.example.menu.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.menu.Constants;
+
 import java.lang.ref.WeakReference;
 
-import static com.example.menu.Constants.GENERAL_PREFERENCES;
-
-public class SharedPrefUtil {
+public class SharedPrefUtil implements Constants {
 
     public static void save(Context context, String key, Object value) {
         WeakReference<Context> contextWeakReference = new WeakReference<>(context);

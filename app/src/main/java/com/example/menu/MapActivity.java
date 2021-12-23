@@ -12,7 +12,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -37,9 +37,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private GoogleMap mMap;
     private GoogleApiClient googleApiClient;
     private Button button;
-    private ImageView back;
-    public final static String LAT = "lat";
-    public final static String LON = "lon";
+  //  private ImageView back;
+    private TextView back;
     private LatLng location = new LatLng(54.78, 56.13);
     public Double latit;
     public String lontit;
@@ -54,7 +53,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         mapFragment.getMapAsync(this);
 
         requestPemissions();
-        back = findViewById(R.id.back);
+ //       back = findViewById(R.id.back);
+        back = findViewById(R.id.ok);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
     //    // Запрос координат
     @SuppressLint("MissingPermission")
-    private void requestLocation() {
+    public void requestLocation() {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)

@@ -6,12 +6,8 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -25,13 +21,13 @@ public class TimeDate {
     }
 
 
-    static final DateTimeFormatter formatter = DateTimeFormatter
-            .ofPattern("H:mm", Locale.ENGLISH)
-            .withZone(ZoneId.systemDefault());
+//    static final DateTimeFormatter formatter = DateTimeFormatter
+//            .ofPattern("H:mm", Locale.ENGLISH)
+//            .withZone(ZoneId.systemDefault());
 
-    public static String formatTime(Instant time) {
-        return formatter.format(time);
-    }
+  //  public static String formatTime(Instant time) {
+ //       return formatter.format(time);
+ //   }
 
     public static String timeStamp(int timeStamp) {
 

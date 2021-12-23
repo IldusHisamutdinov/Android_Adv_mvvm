@@ -36,11 +36,7 @@
         <activity android:name=".weather.CitySelection"> </activity>
         <activity
             android:name=".AddDataAcctivity"
-            android:label="@string/history">
-        </activity>
-        <activity
-            android:name=".GoogleAuth"
-            android:label="@string/google_auth">
+            android:label="@string/menu_favorites">
         </activity>
 
         <activity
